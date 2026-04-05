@@ -23,9 +23,11 @@ interface SiteHeader {
   logoText: string; logoAccent: string; tagline: string;
   navLinks: NavLink[]; btnText: string; btnVisible: boolean;
 }
+interface Social { name: string; url: string; icon: string; }
 interface SiteFooter {
   cols: FooterCol[]; copyright: string;
-  socialX: string; socialLinkedin: string;
+  socialX?: string; socialLinkedin?: string;
+  socials?: Social[];
 }
 interface DB {
   articles: Article[]; evenements: Evenement[]; ticker: TickerItem[];
@@ -52,7 +54,10 @@ const DEFAULT_FOOTER: SiteFooter = {
     { title: "Services", links: [{ label: "Notre approche", href: "#" }, { label: "Contact", href: "#" }] },
   ],
   copyright: "SITREP",
-  socialX: "https://x.com/", socialLinkedin: "https://linkedin.com/",
+  socials: [
+    { name: "X", url: "https://x.com/", icon: "x" },
+    { name: "LinkedIn", url: "https://linkedin.com/", icon: "linkedin" },
+  ],
 };
 
 const DEFAULTS: DB = {
@@ -657,10 +662,35 @@ export default function AdminPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
               <div>
                 <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>Réseaux sociaux</div>
-                  <div style={{ marginBottom: 16 }}>{label("URL X (Twitter)")}<input style={inp()} placeholder="https://x.com/sitrep" value={siteFooter.socialX} onChange={e => setSiteFooter({ ...siteFooter, socialX: e.target.value })} /></div>
-                  <div style={{ marginBottom: 16 }}>{label("URL LinkedIn")}<input style={inp()} placeholder="https://linkedin.com/company/sitrep" value={siteFooter.socialLinkedin} onChange={e => setSiteFooter({ ...siteFooter, socialLinkedin: e.target.value })} /></div>
-                  <div style={{ marginBottom: 16 }}>{label("Copyright")}<input style={inp()} value={siteFooter.copyright} onChange={e => setSiteFooter({ ...siteFooter, copyright: e.target.value })} /></div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted }}>Réseaux sociaux</div>
+                    <button style={btn(navy)} onClick={() => setSiteFooter({ ...siteFooter, socials: [...(siteFooter.socials||[]), { name: "Instagram", url: "", icon: "instagram" }] })}>+ Ajouter</button>
+                  </div>
+                  {(siteFooter.socials||[]).map((s: any, i: number) => (
+                    <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "flex-end", padding: 12, background: "#fafafa", borderRadius: 4, border: `1px solid ${border}` }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 6, background: "#fff", border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
+                        {{"x":"𝕏","linkedin":"in","instagram":"📷","youtube":"▶","facebook":"f","tiktok":"♪","telegram":"✈"}[s.icon]||"🔗"}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        {label("Réseau")}
+                        <select style={inp()} value={s.icon} onChange={e => { const s2=[...(siteFooter.socials||[])]; s2[i]={...s2[i],icon:e.target.value,name:e.target.options[e.target.selectedIndex].text}; setSiteFooter({...siteFooter,socials:s2}); }}>
+                          <option value="x">X (Twitter)</option>
+                          <option value="linkedin">LinkedIn</option>
+                          <option value="instagram">Instagram</option>
+                          <option value="youtube">YouTube</option>
+                          <option value="facebook">Facebook</option>
+                          <option value="tiktok">TikTok</option>
+                          <option value="telegram">Telegram</option>
+                        </select>
+                      </div>
+                      <div style={{ flex: 2 }}>
+                        {label("URL")}
+                        <input style={inp()} placeholder="https://…" value={s.url} onChange={e => { const s2=[...(siteFooter.socials||[])]; s2[i]={...s2[i],url:e.target.value}; setSiteFooter({...siteFooter,socials:s2}); }} />
+                      </div>
+                      <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: accent, flexShrink: 0 }} onClick={() => setSiteFooter({...siteFooter, socials:(siteFooter.socials||[]).filter((_:any,j:number)=>j!==i)})}>×</button>
+                    </div>
+                  ))}
+                  <div style={{ marginBottom: 16, marginTop: 8 }}>{label("Copyright")}<input style={inp()} value={siteFooter.copyright} onChange={e => setSiteFooter({ ...siteFooter, copyright: e.target.value })} /></div>
                 </div>
                 <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>
@@ -693,8 +723,11 @@ export default function AdminPage() {
                       <div style={{ fontFamily: "Barlow Condensed, sans-serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>SIT<em style={{ color: accent, fontStyle: "normal" }}>REP</em></div>
                       <div style={{ fontSize: 9, letterSpacing: ".16em", textTransform: "uppercase" as const, color: "rgba(255,255,255,.25)", marginBottom: 12 }}>L'info au service de la décision</div>
                       <div style={{ display: "flex", gap: 6 }}>
-                        {siteFooter.socialX && <div style={{ width: 28, height: 28, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "rgba(255,255,255,.4)" }}>𝕏</div>}
-                        {siteFooter.socialLinkedin && <div style={{ width: 28, height: 28, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "rgba(255,255,255,.4)" }}>in</div>}
+                        {(siteFooter.socials||[]).map((s:any,i:number) => (
+                          <div key={i} style={{ width: 28, height: 28, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "rgba(255,255,255,.4)" }}>
+                            {{"x":"𝕏","linkedin":"in","instagram":"📷","youtube":"▶","facebook":"f","tiktok":"♪","telegram":"✈"}[s.icon]||"🔗"}
+                          </div>
+                        ))}
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: 28 }}>
