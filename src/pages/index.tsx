@@ -41,5 +41,6 @@ export const getStaticProps: GetStaticProps = async () => {
       events: db.evenements || [],
       layout: db.layout || [],
     },
+    revalidate: 30,
   };
 };
