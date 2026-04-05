@@ -17,10 +17,43 @@ interface Evenement {
 interface TickerItem { tag: string; text: string; }
 interface LayoutBlock { id: string; label: string; icon: string; desc: string; visible: boolean; }
 interface Collaborateur { email: string; role: string; }
+interface NavLink { label: string; href: string; }
+interface FooterCol { title: string; links: NavLink[]; }
+interface SiteHeader {
+  logoText: string; logoAccent: string; tagline: string;
+  navLinks: NavLink[]; btnText: string; btnVisible: boolean;
+}
+interface SiteFooter {
+  cols: FooterCol[]; copyright: string;
+  socialX: string; socialLinkedin: string;
+}
 interface DB {
   articles: Article[]; evenements: Evenement[]; ticker: TickerItem[];
   layout: LayoutBlock[]; collaborateurs: Collaborateur[]; theme?: any;
+  header?: SiteHeader; footer?: SiteFooter;
 }
+
+const DEFAULT_HEADER: SiteHeader = {
+  logoText: "SITREP", logoAccent: "REP", tagline: "L'info au service de la décision",
+  navLinks: [
+    { label: "Accueil", href: "/" },
+    { label: "MENA", href: "/mena" },
+    { label: "Europe", href: "/europe" },
+    { label: "OSINT", href: "/osint" },
+    { label: "Programme", href: "/programme" },
+    { label: "Services", href: "/services" },
+  ],
+  btnText: "S'abonner", btnVisible: true,
+};
+const DEFAULT_FOOTER: SiteFooter = {
+  cols: [
+    { title: "Notes & Décryptages", links: [{ label: "MENA", href: "#" }, { label: "OSINT", href: "#" }, { label: "Europe", href: "#" }] },
+    { title: "Programme", links: [{ label: "Séminaires", href: "#" }, { label: "Lives", href: "#" }, { label: "Podcasts", href: "#" }] },
+    { title: "Services", links: [{ label: "Notre approche", href: "#" }, { label: "Contact", href: "#" }] },
+  ],
+  copyright: "SITREP",
+  socialX: "https://x.com/", socialLinkedin: "https://linkedin.com/",
+};
 
 const DEFAULTS: DB = {
   articles: [], evenements: [],
@@ -62,6 +95,8 @@ export default function AdminPage() {
   interface Theme { navy: string; accent: string; sand: string; text: string; customCss: string; }
   const defaultTheme: Theme = { navy: "#1a2744", accent: "#c0392b", sand: "#f5f2ee", text: "#1a1f3a", customCss: "" };
   const [theme, setTheme] = useState<Theme>(defaultTheme);
+  const [siteHeader, setSiteHeader] = useState<SiteHeader>(DEFAULT_HEADER);
+  const [siteFooter, setSiteFooter] = useState<SiteFooter>(DEFAULT_FOOTER);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/admin/login");
@@ -74,7 +109,7 @@ export default function AdminPage() {
   async function loadDB() {
     try {
       const r = await fetch(`https://raw.githubusercontent.com/raf770/sitrep-next/main/content/db.json?t=${Date.now()}`);
-      if (r.ok) { const d = await r.json(); setDb({ ...DEFAULTS, ...d }); if (d.theme) setTheme(d.theme); }
+      if (r.ok) { const d = await r.json(); setDb({ ...DEFAULTS, ...d }); if (d.theme) setTheme(d.theme); if (d.header) setSiteHeader(d.header); if (d.footer) setSiteFooter(d.footer); }
     } catch (e) {}
     setLoading(false);
   }
@@ -258,6 +293,8 @@ export default function AdminPage() {
           {[
             { id: "layout", label: "Mise en page" },
             { id: "ticker", label: "Ticker" },
+            { id: "header", label: "Header" },
+            { id: "footer", label: "Footer" },
             { id: "theme", label: "Thème & CSS" },
             { id: "collaborateurs", label: "Collaborateurs" },
           ].map(item => (
@@ -443,6 +480,138 @@ export default function AdminPage() {
                   <button onClick={() => { const ticker = db.ticker.filter((_, j) => j !== i); setDb({ ...db, ticker }); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: accent }}>×</button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* HEADER */}
+        {section === "header" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Header</div><div style={{ fontSize: 12, color: muted }}>Logo, navigation, bouton</div></div>
+              <button style={btn(green)} onClick={() => { updateDB({ ...db, header: siteHeader }); showToast("Header sauvegardé ✓"); }}>💾 Sauvegarder</button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+              <div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>Logo</div>
+                  <div style={{ marginBottom: 16 }}>{label("Texte du logo")}<input style={inp()} value={siteHeader.logoText} onChange={e => setSiteHeader({ ...siteHeader, logoText: e.target.value })} /></div>
+                  <div style={{ marginBottom: 16 }}>{label("Partie colorée (accent)")}<input style={inp()} value={siteHeader.logoAccent} onChange={e => setSiteHeader({ ...siteHeader, logoAccent: e.target.value })} /></div>
+                  <div style={{ marginBottom: 16 }}>{label("Tagline")}<input style={inp()} value={siteHeader.tagline} onChange={e => setSiteHeader({ ...siteHeader, tagline: e.target.value })} /></div>
+                </div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>Bouton S'abonner</div>
+                  <div style={{ marginBottom: 16 }}>{label("Texte")}<input style={inp()} value={siteHeader.btnText} onChange={e => setSiteHeader({ ...siteHeader, btnText: e.target.value })} /></div>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                    <input type="checkbox" checked={siteHeader.btnVisible} onChange={e => setSiteHeader({ ...siteHeader, btnVisible: e.target.checked })} style={{ width: 14, height: 14, accentColor: navy }} />
+                    <span style={{ fontSize: 12 }}>Afficher le bouton</span>
+                  </label>
+                </div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted }}>Liens navigation</div>
+                    <button style={btn(navy)} onClick={() => setSiteHeader({ ...siteHeader, navLinks: [...siteHeader.navLinks, { label: "Nouveau", href: "/" }] })}>+ Ajouter</button>
+                  </div>
+                  {siteHeader.navLinks.map((link, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                      <input style={inp({ flex: 1 })} placeholder="Label" value={link.label} onChange={e => { const links = [...siteHeader.navLinks]; links[i] = { ...link, label: e.target.value }; setSiteHeader({ ...siteHeader, navLinks: links }); }} />
+                      <input style={inp({ flex: 1 })} placeholder="URL" value={link.href} onChange={e => { const links = [...siteHeader.navLinks]; links[i] = { ...link, href: e.target.value }; setSiteHeader({ ...siteHeader, navLinks: links }); }} />
+                      <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: accent }} onClick={() => setSiteHeader({ ...siteHeader, navLinks: siteHeader.navLinks.filter((_, j) => j !== i) })}>×</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" as const, color: muted, marginBottom: 10 }}>Aperçu</div>
+                <div style={{ background: siteHeader.logoText ? "#f5f2ee" : "#f0f0f0", border: `1px solid ${border}`, borderRadius: 6, overflow: "hidden" }}>
+                  <div style={{ background: navy, padding: "0 24px", height: 36, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,.45)" }}>Dimanche 5 avril 2026</span>
+                    {siteHeader.btnVisible && <span style={{ fontSize: 10, fontWeight: 700, background: accent, color: "#fff", padding: "3px 12px", borderRadius: 2 }}>{siteHeader.btnText}</span>}
+                  </div>
+                  <div style={{ padding: "16px 24px", borderBottom: `1px solid #d8d2c8`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div>
+                      <div style={{ fontFamily: "Barlow Condensed, sans-serif", fontSize: 36, fontWeight: 800, color: navy, lineHeight: 1 }}>
+                        {siteHeader.logoText.replace(siteHeader.logoAccent, "")}<span style={{ color: accent }}>{siteHeader.logoAccent}</span>
+                      </div>
+                      <div style={{ fontSize: 9, letterSpacing: ".18em", textTransform: "uppercase" as const, color: muted }}>{siteHeader.tagline}</div>
+                    </div>
+                  </div>
+                  <div style={{ background: "#f5f2ee", borderBottom: `2px solid ${navy}`, display: "flex", padding: "0 24px", overflowX: "auto" as const }}>
+                    {siteHeader.navLinks.map((link, i) => (
+                      <div key={i} style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase" as const, color: muted, padding: "11px 14px", whiteSpace: "nowrap" as const }}>{link.label}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FOOTER */}
+        {section === "footer" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Footer</div><div style={{ fontSize: 12, color: muted }}>Colonnes, réseaux sociaux, copyright</div></div>
+              <button style={btn(green)} onClick={() => { updateDB({ ...db, footer: siteFooter }); showToast("Footer sauvegardé ✓"); }}>💾 Sauvegarder</button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+              <div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>Réseaux sociaux</div>
+                  <div style={{ marginBottom: 16 }}>{label("URL X (Twitter)")}<input style={inp()} placeholder="https://x.com/sitrep" value={siteFooter.socialX} onChange={e => setSiteFooter({ ...siteFooter, socialX: e.target.value })} /></div>
+                  <div style={{ marginBottom: 16 }}>{label("URL LinkedIn")}<input style={inp()} placeholder="https://linkedin.com/company/sitrep" value={siteFooter.socialLinkedin} onChange={e => setSiteFooter({ ...siteFooter, socialLinkedin: e.target.value })} /></div>
+                  <div style={{ marginBottom: 16 }}>{label("Copyright")}<input style={inp()} value={siteFooter.copyright} onChange={e => setSiteFooter({ ...siteFooter, copyright: e.target.value })} /></div>
+                </div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted }}>Colonnes</div>
+                    <button style={btn(navy)} onClick={() => setSiteFooter({ ...siteFooter, cols: [...siteFooter.cols, { title: "Nouvelle colonne", links: [] }] })}>+ Colonne</button>
+                  </div>
+                  {siteFooter.cols.map((col, ci) => (
+                    <div key={ci} style={{ marginBottom: 16, padding: 12, background: "#fafafa", borderRadius: 4, border: `1px solid ${border}` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                        <input style={inp({ flex: 1 })} placeholder="Titre colonne" value={col.title} onChange={e => { const cols = [...siteFooter.cols]; cols[ci] = { ...col, title: e.target.value }; setSiteFooter({ ...siteFooter, cols }); }} />
+                        <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: accent }} onClick={() => setSiteFooter({ ...siteFooter, cols: siteFooter.cols.filter((_, j) => j !== ci) })}>×</button>
+                      </div>
+                      {col.links.map((link, li) => (
+                        <div key={li} style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                          <input style={inp({ flex: 1 })} placeholder="Label" value={link.label} onChange={e => { const cols = [...siteFooter.cols]; cols[ci].links[li] = { ...link, label: e.target.value }; setSiteFooter({ ...siteFooter, cols }); }} />
+                          <input style={inp({ flex: 1 })} placeholder="URL" value={link.href} onChange={e => { const cols = [...siteFooter.cols]; cols[ci].links[li] = { ...link, href: e.target.value }; setSiteFooter({ ...siteFooter, cols }); }} />
+                          <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: accent }} onClick={() => { const cols = [...siteFooter.cols]; cols[ci].links = cols[ci].links.filter((_, j) => j !== li); setSiteFooter({ ...siteFooter, cols }); }}>×</button>
+                        </div>
+                      ))}
+                      <button style={{ ...btn("#e8ecf5", navy), fontSize: 10, marginTop: 6 }} onClick={() => { const cols = [...siteFooter.cols]; cols[ci].links.push({ label: "Nouveau lien", href: "#" }); setSiteFooter({ ...siteFooter, cols }); }}>+ Lien</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" as const, color: muted, marginBottom: 10 }}>Aperçu</div>
+                <div style={{ background: navy, padding: "24px 24px 0", borderRadius: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: 20 }}>
+                    <div>
+                      <div style={{ fontFamily: "Barlow Condensed, sans-serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>SIT<em style={{ color: accent, fontStyle: "normal" }}>REP</em></div>
+                      <div style={{ fontSize: 9, letterSpacing: ".16em", textTransform: "uppercase" as const, color: "rgba(255,255,255,.25)", marginBottom: 12 }}>L'info au service de la décision</div>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {siteFooter.socialX && <div style={{ width: 28, height: 28, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "rgba(255,255,255,.4)" }}>𝕏</div>}
+                        {siteFooter.socialLinkedin && <div style={{ width: 28, height: 28, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "rgba(255,255,255,.4)" }}>in</div>}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 28 }}>
+                      {siteFooter.cols.map((col, i) => (
+                        <div key={i}>
+                          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: "rgba(255,255,255,.28)", marginBottom: 10 }}>{col.title}</div>
+                          {col.links.map((link, j) => <div key={j} style={{ fontSize: 11, color: "rgba(255,255,255,.45)", marginBottom: 6 }}>{link.label}</div>)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,.07)", padding: "10px 0", display: "flex", justifyContent: "space-between", fontSize: 10, color: "rgba(255,255,255,.2)" }}>
+                    <span>© {new Date().getFullYear()} {siteFooter.copyright}</span>
+                    <span>L'info au service de la décision</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
