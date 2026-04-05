@@ -213,5 +213,38 @@
       "email": "maximeperez81@gmail.com",
       "role": "Admin"
     }
-  ]
+  ],
+  "header": {
+    "logoText": "SITREP",
+    "logoAccent": "REP",
+    "tagline": "L'info au service de la décision pour tous",
+    "navLinks": [
+      {
+        "label": "Accueil",
+        "href": "/"
+      },
+      {
+        "label": "MENA",
+        "href": "/mena"
+      },
+      {
+        "label": "Europe",
+        "href": "/europe"
+      },
+      {
+        "label": "OSINT",
+        "href": "/osint"
+      },
+      {
+        "label": "Programme",
+        "href": "/programme"
+      },
+      {
+        "label": "Services",
+        "href": "/services"
+      }
+    ],
+    "btnText": "S'abonner",
+    "btnVisible": true
+  }
 }
