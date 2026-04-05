@@ -4,15 +4,21 @@ import Nav from "./Nav";
 import Ticker from "./Ticker";
 import Footer from "./Footer";
 
-export default function Layout({ children, ticker }: { children: React.ReactNode; ticker?: any[] }) {
+interface SiteData {
+  ticker?: any[];
+  header?: any;
+  footer?: any;
+}
+
+export default function Layout({ children, siteData }: { children: React.ReactNode; siteData?: SiteData }) {
   return (
     <div className="min-h-screen bg-sand font-inter overflow-x-hidden">
       <TopBar />
-      <Logo />
-      <Nav />
-      <Ticker items={ticker || []} />
+      <Logo header={siteData?.header} />
+      <Nav links={siteData?.header?.navLinks} />
+      <Ticker items={siteData?.ticker || []} />
       <main className="w-full">{children}</main>
-      <Footer />
+      <Footer footer={siteData?.footer} />
     </div>
   );
 }
