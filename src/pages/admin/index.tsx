@@ -19,7 +19,7 @@ interface LayoutBlock { id: string; label: string; icon: string; desc: string; v
 interface Collaborateur { email: string; role: string; }
 interface DB {
   articles: Article[]; evenements: Evenement[]; ticker: TickerItem[];
-  layout: LayoutBlock[]; collaborateurs: Collaborateur[];
+  layout: LayoutBlock[]; collaborateurs: Collaborateur[]; theme?: any;
 }
 
 const DEFAULTS: DB = {
@@ -59,6 +59,10 @@ export default function AdminPage() {
   const [artTab, setArtTab] = useState("contenu");
   const dragSrc = useRef<number | null>(null);
 
+  interface Theme { navy: string; accent: string; sand: string; text: string; customCss: string; }
+  const defaultTheme: Theme = { navy: "#1a2744", accent: "#c0392b", sand: "#f5f2ee", text: "#1a1f3a", customCss: "" };
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/admin/login");
   }, [status]);
@@ -70,7 +74,7 @@ export default function AdminPage() {
   async function loadDB() {
     try {
       const r = await fetch(`https://raw.githubusercontent.com/raf770/sitrep-next/main/content/db.json?t=${Date.now()}`);
-      if (r.ok) { const d = await r.json(); setDb({ ...DEFAULTS, ...d }); }
+      if (r.ok) { const d = await r.json(); setDb({ ...DEFAULTS, ...d }); if (d.theme) setTheme(d.theme); }
     } catch (e) {}
     setLoading(false);
   }
@@ -254,6 +258,7 @@ export default function AdminPage() {
           {[
             { id: "layout", label: "Mise en page" },
             { id: "ticker", label: "Ticker" },
+            { id: "theme", label: "Thème & CSS" },
             { id: "collaborateurs", label: "Collaborateurs" },
           ].map(item => (
             <div key={item.id} onClick={() => setSection(item.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 20px", fontSize: 12, fontWeight: 500, color: section === item.id ? "#fff" : "rgba(255,255,255,.5)", cursor: "pointer", borderLeft: `2px solid ${section === item.id ? accent : "transparent"}`, background: section === item.id ? "rgba(255,255,255,.08)" : "transparent" }}>
@@ -438,6 +443,72 @@ export default function AdminPage() {
                   <button onClick={() => { const ticker = db.ticker.filter((_, j) => j !== i); setDb({ ...db, ticker }); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: accent }}>×</button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* THEME */}
+        {section === "theme" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Thème & CSS</div><div style={{ fontSize: 12, color: muted }}>Personnalisez les couleurs et l'apparence du site</div></div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button style={btn("#f0f0f0", muted)} onClick={() => { setTheme(defaultTheme); showToast("Thème réinitialisé"); }}>↺ Réinitialiser</button>
+                <button style={btn(green)} onClick={() => { const newDb = { ...db, theme }; updateDB(newDb); showToast("Thème sauvegardé ✓ — Vercel redéploie automatiquement"); }}>💾 Sauvegarder</button>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 24 }}>
+              <div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>Couleurs principales</div>
+                  {[
+                    { key: "navy", label: "Navy (fond sidebar, header)" },
+                    { key: "accent", label: "Accent (rouge — logo, boutons)" },
+                    { key: "sand", label: "Fond du site" },
+                    { key: "text", label: "Couleur texte" },
+                  ].map(c => (
+                    <div key={c.key} style={{ marginBottom: 16 }}>
+                      {label(c.label)}
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <input type="color" value={(theme as any)[c.key]} onChange={e => setTheme({ ...theme, [c.key]: e.target.value })} style={{ width: 48, height: 36, border: `1px solid ${border}`, borderRadius: 4, cursor: "pointer", padding: 2 }} />
+                        <input style={inp({ fontFamily: "monospace", flex: 1 })} value={(theme as any)[c.key]} onChange={e => { if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) setTheme({ ...theme, [c.key]: e.target.value }); }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>CSS personnalisé</div>
+                  <textarea style={{ ...inp(), minHeight: 160, fontFamily: "monospace", fontSize: 12, resize: "vertical" as const }} value={theme.customCss} onChange={e => setTheme({ ...theme, customCss: e.target.value })} placeholder=".logo { font-size: 52px; }&#10;.nav a { font-size: 13px; }" />
+                </div>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, paddingBottom: 8, borderBottom: `1px solid ${border}`, marginBottom: 16 }}>Préréglages rapides</div>
+                  {[
+                    { name: "classique", label: "🏛️ Classique (défaut)", navy: "#1a2744", accent: "#c0392b", sand: "#f5f2ee", text: "#1a1f3a" },
+                    { name: "sombre", label: "🌙 Mode sombre", navy: "#0d1117", accent: "#e05a5a", sand: "#161b22", text: "#e6edf3" },
+                    { name: "bleu", label: "🔵 Bleu profond", navy: "#0a2342", accent: "#1565c0", sand: "#e8f0fe", text: "#0a2342" },
+                    { name: "vert", label: "🌿 Vert éditorial", navy: "#1b3a2d", accent: "#2e6e48", sand: "#f0f5f1", text: "#1b3a2d" },
+                  ].map(p => (
+                    <button key={p.name} style={{ ...btn("#f0f0f0", navy), width: "100%", justifyContent: "flex-start", marginBottom: 8 }} onClick={() => setTheme({ ...theme, navy: p.navy, accent: p.accent, sand: p.sand, text: p.text })}>
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" as const, color: muted, marginBottom: 10 }}>Aperçu en direct</div>
+                <div style={{ border: `1px solid ${border}`, borderRadius: 6, overflow: "hidden" }}>
+                  <div style={{ background: "#f0f0f0", padding: "8px 12px", fontSize: 11, color: muted, display: "flex", alignItems: "center", gap: 8, borderBottom: `1px solid ${border}` }}>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f57" }} />
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#febc2e" }} />
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28c840" }} />
+                    </div>
+                    <span>sitrep-next.vercel.app</span>
+                  </div>
+                  <iframe src="https://sitrep-next.vercel.app" style={{ width: "100%", height: 600, border: "none" }} />
+                </div>
+                <div style={{ fontSize: 11, color: muted, marginTop: 8, textAlign: "center" as const }}>Sauvegardez pour voir les changements en ligne</div>
+              </div>
             </div>
           </div>
         )}
