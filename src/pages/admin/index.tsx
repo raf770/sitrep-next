@@ -96,6 +96,9 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [artTab, setArtTab] = useState("contenu");
   const dragSrc = useRef<number | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState("");
 
   interface Theme { navy: string; accent: string; sand: string; text: string; customCss: string; }
   const defaultTheme: Theme = { navy: "#1a2744", accent: "#c0392b", sand: "#f5f2ee", text: "#1a1f3a", customCss: "" };
@@ -146,6 +149,17 @@ export default function AdminPage() {
   }
 
   function updateDB(newDb: DB) { setDb(newDb); saveDB(newDb); }
+
+  async function loadStats() {
+    setStatsLoading(true);
+    setStatsError("");
+    try {
+      const r = await fetch("/api/stats");
+      if (r.ok) { const d = await r.json(); setStats(d); }
+      else { const d = await r.json(); setStatsError(d.error || "Erreur"); }
+    } catch(e: any) { setStatsError(e.message); }
+    setStatsLoading(false);
+  }
 
   function showToast(msg: string, type = "success") {
     setToast({ msg, type, show: true });
@@ -298,6 +312,7 @@ export default function AdminPage() {
           {[
             { id: "layout", label: "Mise en page" },
             { id: "disposition", label: "Disposition articles" },
+            { id: "stats", label: "Statistiques" },
             { id: "ticker", label: "Ticker" },
             { id: "header", label: "Header" },
             { id: "footer", label: "Footer" },
@@ -422,6 +437,108 @@ export default function AdminPage() {
               </table>
               {!db.evenements.length && <div style={{ padding: 48, textAlign: "center", color: muted }}>Aucun événement.</div>}
             </div>
+          </div>
+        )}
+
+        {/* STATS */}
+        {section === "stats" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Statistiques</div><div style={{ fontSize: 12, color: muted }}>Données des 30 derniers jours</div></div>
+              <button style={btn(navy)} onClick={loadStats}>🔄 Actualiser</button>
+            </div>
+
+            {!stats && !statsLoading && !statsError && (
+              <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 48, textAlign: "center" }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: navy, marginBottom: 8 }}>Statistiques Vercel Analytics</div>
+                <div style={{ fontSize: 12, color: muted, marginBottom: 20 }}>Cliquez pour charger les données des 30 derniers jours</div>
+                <button style={btn(navy)} onClick={loadStats}>Charger les statistiques</button>
+              </div>
+            )}
+
+            {statsLoading && (
+              <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 48, textAlign: "center", color: muted, fontSize: 13 }}>
+                Chargement…
+              </div>
+            )}
+
+            {statsError && (
+              <div style={{ background: "#fdf0ee", border: `1px solid ${accent}`, borderRadius: 6, padding: 20, color: accent, fontSize: 13 }}>
+                ❌ Erreur : {statsError}
+                <div style={{ fontSize: 11, marginTop: 8, color: muted }}>Vérifiez que Vercel Analytics est activé sur le projet.</div>
+              </div>
+            )}
+
+            {stats && !statsLoading && (() => {
+              const ts = stats.timeseries?.data || [];
+              const pages = stats.pages?.data || [];
+              const totalViews = ts.reduce((acc: number, d: any) => acc + (d.pageViews || 0), 0);
+              const totalVisitors = ts.reduce((acc: number, d: any) => acc + (d.visitors || 0), 0);
+              const maxViews = Math.max(...ts.map((d: any) => d.pageViews || 0), 1);
+
+              return (
+                <div>
+                  {/* KPIs */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
+                    {[
+                      { val: totalViews.toLocaleString("fr-FR"), label: "Pages vues", icon: "👁️", bg: "#e8ecf5", color: navy },
+                      { val: totalVisitors.toLocaleString("fr-FR"), label: "Visiteurs uniques", icon: "👥", bg: "#e8f5ee", color: green },
+                      { val: ts.length > 0 ? Math.round(totalViews / ts.length).toLocaleString("fr-FR") : "0", label: "Moy. par jour", icon: "📅", bg: "#fef3e8", color: "#e67e22" },
+                    ].map((s, i) => (
+                      <div key={i} style={{ background: "#fff", padding: "18px 20px", borderRadius: 6, border: `1px solid ${border}`, display: "flex", alignItems: "center", gap: 14 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 10, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{s.icon}</div>
+                        <div><div style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.val}</div><div style={{ fontSize: 11, color: muted }}>{s.label}</div></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Graphique */}
+                  {ts.length > 0 && (
+                    <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 24 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: navy, marginBottom: 16 }}>Pages vues par jour</div>
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 120 }}>
+                        {ts.map((d: any, i: number) => {
+                          const h = Math.max(4, Math.round((d.pageViews || 0) / maxViews * 110));
+                          const date = new Date(d.key).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+                          return (
+                            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }} title={`${date} : ${d.pageViews || 0} vues`}>
+                              <div style={{ width: "100%", height: h, background: navy, borderRadius: "2px 2px 0 0", transition: "height .3s" }} />
+                              {i % 5 === 0 && <div style={{ fontSize: 8, color: muted, textAlign: "center", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{date}</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pages les plus vues */}
+                  {pages.length > 0 && (
+                    <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, overflow: "hidden" }}>
+                      <div style={{ padding: "14px 16px", borderBottom: `1px solid ${border}`, fontSize: 12, fontWeight: 700, color: navy }}>Pages les plus visitées</div>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr>
+                            {["Page", "Vues", "Visiteurs"].map(h => (
+                              <th key={h} style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" as const, color: muted, padding: "10px 16px", textAlign: "left" as const, borderBottom: `2px solid ${border}`, background: "#fafafa" }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pages.map((p: any, i: number) => (
+                            <tr key={i}>
+                              <td style={{ padding: "10px 16px", fontSize: 12, fontFamily: "monospace", color: navy }}>{p.key || p.page || "/"}</td>
+                              <td style={{ padding: "10px 16px", fontSize: 12, fontWeight: 600, color: navy }}>{(p.pageViews || 0).toLocaleString("fr-FR")}</td>
+                              <td style={{ padding: "10px 16px", fontSize: 12, color: muted }}>{(p.visitors || 0).toLocaleString("fr-FR")}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
 
