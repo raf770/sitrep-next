@@ -292,6 +292,7 @@ export default function AdminPage() {
           <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: "rgba(255,255,255,.2)", padding: "12px 20px 4px" }}>Site</div>
           {[
             { id: "layout", label: "Mise en page" },
+            { id: "disposition", label: "Disposition articles" },
             { id: "ticker", label: "Ticker" },
             { id: "header", label: "Header" },
             { id: "footer", label: "Footer" },
@@ -481,6 +482,105 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* DISPOSITION */}
+        {section === "disposition" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Disposition des articles</div><div style={{ fontSize: 12, color: muted }}>Glissez les articles dans les zones pour définir leur position sur la page d'accueil</div></div>
+              <button style={btn(green)} onClick={() => { updateDB({ ...db }); showToast("Disposition sauvegardée ✓"); }}>💾 Sauvegarder</button>
+            </div>
+
+            {(() => {
+              const pubArts = db.articles.filter(a => a.statut === "Publié");
+              const heroArt = pubArts[0];
+              const sideArts = pubArts.slice(1, 3);
+              const gridArts = pubArts.slice(3, 6);
+              const restArts = pubArts.slice(6);
+
+              const artCard = (a: Article, zone: string, idx: number) => (
+                <div
+                  key={a.id}
+                  draggable
+                  onDragStart={e => { e.dataTransfer.setData("artId", a.id); e.dataTransfer.setData("fromZone", zone); }}
+                  style={{ background: "#fff", border: `1.5px solid ${border}`, borderRadius: 6, overflow: "hidden", cursor: "grab", transition: "all .15s" }}
+                >
+                  {a.image && <img src={a.image} style={{ width: "100%", height: zone === "hero" ? 120 : 60, objectFit: "cover", objectPosition: a.imgpos || "center", display: "block", filter: "brightness(.8)" }} />}
+                  {!a.image && <div style={{ width: "100%", height: zone === "hero" ? 120 : 60, background: "#e8ecf5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🖼️</div>}
+                  <div style={{ padding: "8px 10px" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, color: navy, marginBottom: 3 }}>{a.theme || "—"} · {a.format || "—"}</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: navy, lineHeight: 1.35 }}>{a.titre}</div>
+                    <div style={{ fontSize: 10, color: muted, marginTop: 3 }}>{a.auteur} · {fd(a.date)}</div>
+                  </div>
+                </div>
+              );
+
+              const dropZone = (zone: string, label: string, capacity: number, articles: Article[], color: string) => (
+                <div
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => {
+                    e.preventDefault();
+                    const artId = e.dataTransfer.getData("artId");
+                    const arts = [...db.articles];
+                    const fromIdx = arts.findIndex(a => a.id === artId);
+                    const zoneMap: Record<string, number> = { hero: 0, side1: 1, side2: 2, grid1: 3, grid2: 4, grid3: 5 };
+                    const toIdx = zoneMap[zone];
+                    if (fromIdx === -1 || toIdx === undefined) return;
+                    const [item] = arts.splice(fromIdx, 1);
+                    arts.splice(toIdx, 0, item);
+                    updateDB({ ...db, articles: arts });
+                    showToast("Disposition mise à jour ✓");
+                  }}
+                  style={{ border: `2px dashed ${color}`, borderRadius: 8, padding: 12, minHeight: 80, background: `${color}10` }}
+                >
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".15em", textTransform: "uppercase" as const, color, marginBottom: 8 }}>
+                    {label} <span style={{ opacity: .5 }}>({articles.length}/{capacity})</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: zone === "hero" ? "1fr" : `repeat(${capacity}, 1fr)`, gap: 8 }}>
+                    {articles.map((a, i) => artCard(a, zone, i))}
+                    {articles.length < capacity && Array.from({ length: capacity - articles.length }).map((_, i) => (
+                      <div key={i} style={{ border: `1.5px dashed ${border}`, borderRadius: 6, height: zone === "hero" ? 160 : 100, display: "flex", alignItems: "center", justifyContent: "center", color: muted, fontSize: 11 }}>
+                        Glissez ici
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20 }}>
+                  {/* Left column */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {dropZone("hero", "🗞️ Article principal (Hero)", 1, heroArt ? [heroArt] : [], navy)}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                      {dropZone("grid1", "📰 Grille 1", 1, gridArts[0] ? [gridArts[0]] : [], "#6a3090")}
+                      {dropZone("grid2", "📰 Grille 2", 1, gridArts[1] ? [gridArts[1]] : [], "#6a3090")}
+                      {dropZone("grid3", "📰 Grille 3", 1, gridArts[2] ? [gridArts[2]] : [], "#6a3090")}
+                    </div>
+                  </div>
+
+                  {/* Right column */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {dropZone("side1", "➡️ Côté 1", 1, sideArts[0] ? [sideArts[0]] : [], accent)}
+                    {dropZone("side2", "➡️ Côté 2", 1, sideArts[1] ? [sideArts[1]] : [], accent)}
+                    <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 12 }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".15em", textTransform: "uppercase" as const, color: muted, marginBottom: 8 }}>Autres articles publiés</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        {restArts.map(a => (
+                          <div key={a.id} draggable onDragStart={e => { e.dataTransfer.setData("artId", a.id); e.dataTransfer.setData("fromZone", "rest"); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "#fafafa", borderRadius: 4, border: `1px solid ${border}`, cursor: "grab" }}>
+                            <span style={{ color: muted }}>⠿</span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: navy, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{a.titre}</span>
+                          </div>
+                        ))}
+                        {restArts.length === 0 && <div style={{ fontSize: 11, color: muted, textAlign: "center" as const, padding: "12px 0" }}>Tous les articles sont placés</div>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
