@@ -558,30 +558,124 @@ export default function AdminPage() {
         {section === "layout" && (
           <div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
-              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Mise en page</div><div style={{ fontSize: 12, color: muted }}>Glissez les blocs pour réorganiser la page d'accueil</div></div>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Mise en page</div><div style={{ fontSize: 12, color: muted }}>Réorganisez les blocs et choisissez leur contenu</div></div>
+              <button style={btn(green)} onClick={() => { updateDB({ ...db }); showToast("Mise en page sauvegardée ✓"); }}>💾 Sauvegarder</button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
-              <div>{db.layout.map((block, i) => (
-                <div key={block.id} draggable onDragStart={() => onLayoutDragStart(i)} onDragOver={e => e.preventDefault()} onDrop={() => onLayoutDrop(i)} style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: `1.5px solid ${border}`, borderRadius: 6, padding: "14px 16px", marginBottom: 10, cursor: "grab" }}>
-                  <span style={{ color: muted, fontSize: 20 }}>⠿</span>
-                  <span style={{ fontSize: 22 }}>{block.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: navy }}>{block.label}</div>
-                    <div style={{ fontSize: 11, color: muted }}>{block.desc}</div>
-                  </div>
-                  <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-                    <input type="checkbox" checked={block.visible} onChange={e => toggleBlock(block.id, e.target.checked)} style={{ width: 16, height: 16, accentColor: green, cursor: "pointer" }} />
-                    <span style={{ fontSize: 11, color: muted }}>Visible</span>
-                  </label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 24 }}>
+              <div>
+                {db.layout.map((block, i) => {
+                  const pubArts = db.articles.filter((a: Article) => a.statut === "Publié");
+                  const pubEvs = db.evenements.filter((e: Evenement) => e.pub);
+                  return (
+                    <div key={block.id} draggable onDragStart={() => onLayoutDragStart(i)} onDragOver={e => e.preventDefault()} onDrop={() => onLayoutDrop(i)}
+                      style={{ background: "#fff", border: `1.5px solid ${block.visible ? border : "#e0e0e0"}`, borderRadius: 6, marginBottom: 10, overflow: "hidden", opacity: block.visible ? 1 : 0.6 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", cursor: "grab", borderBottom: block.visible ? `1px solid ${border}` : "none" }}>
+                        <span style={{ color: muted, fontSize: 20 }}>⠿</span>
+                        <span style={{ fontSize: 20 }}>{block.icon}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: navy }}>{block.label}</div>
+                          <div style={{ fontSize: 11, color: muted }}>{block.desc}</div>
+                        </div>
+                        <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+                          <input type="checkbox" checked={block.visible} onChange={e => toggleBlock(block.id, e.target.checked)} style={{ width: 16, height: 16, accentColor: green, cursor: "pointer" }} />
+                          <span style={{ fontSize: 11, color: muted }}>Visible</span>
+                        </label>
+                      </div>
+                      {block.visible && (
+                        <div style={{ padding: "12px 16px", background: "#fafafa" }}>
+                          {block.id === "hero" && (
+                            <div>
+                              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".15em", textTransform: "uppercase" as const, color: muted, marginBottom: 8 }}>Article principal</div>
+                              <select style={inp()} value={db.articles[0]?.id || ""}
+                                onChange={e => {
+                                  const arts = [...db.articles];
+                                  const idx2 = arts.findIndex((a: Article) => a.id === e.target.value);
+                                  if (idx2 > 0) { const [item] = arts.splice(idx2, 1); arts.unshift(item); updateDB({ ...db, articles: arts }); showToast("Article hero mis à jour ✓"); }
+                                }}>
+                                {pubArts.map((a: Article) => <option key={a.id} value={a.id}>{a.titre}</option>)}
+                              </select>
+                              <div style={{ fontSize: 10, color: muted, marginTop: 6 }}>Les articles 2 et 3 apparaissent dans la colonne droite</div>
+                            </div>
+                          )}
+                          {block.id === "notes" && (
+                            <div>
+                              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".15em", textTransform: "uppercase" as const, color: muted, marginBottom: 8 }}>Articles dans la grille (positions 1, 2, 3)</div>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                                {[0,1,2].map(slot => {
+                                  const artIdx = 3 + slot;
+                                  const art = db.articles[artIdx];
+                                  return (
+                                    <div key={slot}>
+                                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, color: muted, marginBottom: 4 }}>Position {slot+1}</div>
+                                      <select style={inp({ fontSize: 11 })} value={art?.id || ""}
+                                        onChange={e => {
+                                          const arts = [...db.articles];
+                                          const fromIdx = arts.findIndex((a: Article) => a.id === e.target.value);
+                                          if (fromIdx >= 0 && fromIdx !== artIdx) {
+                                            const [item] = arts.splice(fromIdx, 1);
+                                            arts.splice(artIdx, 0, item);
+                                            updateDB({ ...db, articles: arts });
+                                            showToast("Grille mise à jour ✓");
+                                          }
+                                        }}>
+                                        <option value="">— Vide —</option>
+                                        {pubArts.map((a: Article) => <option key={a.id} value={a.id}>{a.titre.slice(0,28)}{a.titre.length>28?"…":""}</option>)}
+                                      </select>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          {block.id === "evenements" && (
+                            <div>
+                              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".15em", textTransform: "uppercase" as const, color: muted, marginBottom: 8 }}>
+                                {pubEvs.length} événement{pubEvs.length>1?"s":""} publié{pubEvs.length>1?"s":""} — les 4 premiers sont affichés
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                {pubEvs.slice(0,4).map((e: Evenement, ei: number) => (
+                                  <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, padding: "6px 10px", background: "#fff", borderRadius: 4, border: `1px solid ${border}` }}>
+                                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, padding: "2px 6px", background: navy, color: "#fff", borderRadius: 2 }}>{ei+1}</span>
+                                    <span style={{ flex: 1 }}>{e.titre}</span>
+                                    <span style={{ fontSize: 10, color: muted }}>{e.date ? new Date(e.date).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}) : ""}</span>
+                                  </div>
+                                ))}
+                                {pubEvs.length === 0 && <div style={{ fontSize: 11, color: muted }}>Aucun événement publié</div>}
+                              </div>
+                            </div>
+                          )}
+                          {(block.id === "piliers" || block.id === "conseil") && (
+                            <div style={{ fontSize: 11, color: muted, fontStyle: "italic" }}>
+                              {block.id === "piliers" ? "Contenu fixe — modifiable dans le code" : "Bloc contact + newsletter — toujours le même"}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ position: "sticky", top: 20 }}>
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, marginBottom: 12 }}>Ordre des blocs</div>
+                  {db.layout.map((b, i) => (
+                    <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 8, background: "#f5f5f5", borderRadius: 4, padding: "8px 12px", marginBottom: 6, opacity: b.visible ? 1 : 0.35 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: muted, width: 16 }}>{b.visible ? i+1 : "—"}</span>
+                      <span>{b.icon}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: navy, textDecoration: b.visible ? "none" : "line-through" }}>{b.label}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}</div>
-              <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 16, position: "sticky", top: 20 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, marginBottom: 12 }}>Aperçu de l'ordre</div>
-                {db.layout.map(b => (
-                  <div key={b.id} style={{ background: "#f5f5f5", borderRadius: 4, padding: "8px 12px", marginBottom: 6, fontSize: 11, fontWeight: 600, color: navy, opacity: b.visible ? 1 : 0.35, textDecoration: b.visible ? "none" : "line-through" }}>
-                    {b.icon} {b.label}
-                  </div>
-                ))}
+                <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" as const, color: muted, marginBottom: 12 }}>Article hero actuel</div>
+                  {db.articles[0] ? (
+                    <div>
+                      {db.articles[0].image && <img src={db.articles[0].image} style={{ width: "100%", height: 80, objectFit: "cover", objectPosition: db.articles[0].imgpos||"center", borderRadius: 4, marginBottom: 8 }} />}
+                      <div style={{ fontSize: 12, fontWeight: 600, color: navy }}>{db.articles[0].titre}</div>
+                      <div style={{ fontSize: 10, color: muted, marginTop: 4 }}>{db.articles[0].theme} · {db.articles[0].format}</div>
+                    </div>
+                  ) : <div style={{ fontSize: 11, color: muted }}>Aucun article publié</div>}
+                </div>
               </div>
             </div>
           </div>
