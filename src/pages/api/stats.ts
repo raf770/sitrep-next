@@ -7,35 +7,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!session) return res.status(401).json({ error: "Non autorisé" });
 
   const token = process.env.VERCEL_TOKEN;
-  const teamId = process.env.VERCEL_TEAM_ID || "";
 
   try {
-    // Get project ID first
+    // Get project
     const projectRes = await fetch(
-      `https://api.vercel.com/v9/projects/sitrep-next${teamId ? `?teamId=${teamId}` : ""}`,
+      `https://api.vercel.com/v9/projects/sitrep-next`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const project = await projectRes.json();
     const projectId = project.id;
 
-    // Get analytics data - last 30 days
     const end = Date.now();
     const start = end - 30 * 24 * 60 * 60 * 1000;
 
-    const [webRes, pageRes] = await Promise.all([
+    const [timeseriesRes, pagesRes, durationRes] = await Promise.all([
       fetch(
-        `https://api.vercel.com/v1/web-analytics/timeseries?projectId=${projectId}&from=${start}&to=${end}&granularity=day${teamId ? `&teamId=${teamId}` : ""}`,
+        `https://api.vercel.com/v1/web-analytics/timeseries?projectId=${projectId}&from=${start}&to=${end}&granularity=day`,
         { headers: { Authorization: `Bearer ${token}` } }
       ),
       fetch(
-        `https://api.vercel.com/v1/web-analytics/pages?projectId=${projectId}&from=${start}&to=${end}&limit=10${teamId ? `&teamId=${teamId}` : ""}`,
+        `https://api.vercel.com/v1/web-analytics/pages?projectId=${projectId}&from=${start}&to=${end}&limit=20`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      ),
+      fetch(
+        `https://api.vercel.com/v1/web-analytics/pages?projectId=${projectId}&from=${start}&to=${end}&limit=20&metric=duration`,
         { headers: { Authorization: `Bearer ${token}` } }
       ),
     ]);
 
-    const [timeseries, pages] = await Promise.all([webRes.json(), pageRes.json()]);
+    const [timeseries, pages, duration] = await Promise.all([
+      timeseriesRes.json(),
+      pagesRes.json(),
+      durationRes.json(),
+    ]);
 
-    return res.status(200).json({ timeseries, pages, projectId });
+    // Merge pages with duration
+    const pagesData = (pages.data || []).map((p: any) => {
+      const dur = (duration.data || []).find((d: any) => d.key === p.key);
+      return {
+        ...p,
+        avgDuration: dur?.avg || dur?.duration || null,
+      };
+    });
+
+    return res.status(200).json({ timeseries, pages: { data: pagesData }, projectId });
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
   }

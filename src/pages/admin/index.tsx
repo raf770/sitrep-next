@@ -519,19 +519,31 @@ export default function AdminPage() {
                       <table style={{ width: "100%", borderCollapse: "collapse" }}>
                         <thead>
                           <tr>
-                            {["Page", "Vues", "Visiteurs"].map(h => (
+                            {["Page", "Vues", "Visiteurs", "Durée moy."].map(h => (
                               <th key={h} style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" as const, color: muted, padding: "10px 16px", textAlign: "left" as const, borderBottom: `2px solid ${border}`, background: "#fafafa" }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
-                          {pages.map((p: any, i: number) => (
-                            <tr key={i}>
-                              <td style={{ padding: "10px 16px", fontSize: 12, fontFamily: "monospace", color: navy }}>{p.key || p.page || "/"}</td>
-                              <td style={{ padding: "10px 16px", fontSize: 12, fontWeight: 600, color: navy }}>{(p.pageViews || 0).toLocaleString("fr-FR")}</td>
-                              <td style={{ padding: "10px 16px", fontSize: 12, color: muted }}>{(p.visitors || 0).toLocaleString("fr-FR")}</td>
-                            </tr>
-                          ))}
+                          {pages.map((p: any, i: number) => {
+                            const durMs = p.avgDuration || 0;
+                            const durStr = durMs > 0 ? (durMs >= 60000 ? Math.round(durMs/60000)+"min" : Math.round(durMs/1000)+"s") : "—";
+                            const maxPv = Math.max(...pages.map((x: any) => x.pageViews || 0), 1);
+                            const pct = Math.round((p.pageViews || 0) / maxPv * 100);
+                            return (
+                              <tr key={i} style={{ borderBottom: `1px solid ${border}` }}>
+                                <td style={{ padding: "10px 16px", fontSize: 12, color: navy }}>
+                                  <div style={{ fontFamily: "monospace", marginBottom: 4 }}>{p.key || "/"}</div>
+                                  <div style={{ height: 4, background: "#e8ecf5", borderRadius: 2, overflow: "hidden" }}>
+                                    <div style={{ height: "100%", width: pct+"%", background: navy, borderRadius: 2 }} />
+                                  </div>
+                                </td>
+                                <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 700, color: navy }}>{(p.pageViews || 0).toLocaleString("fr-FR")}</td>
+                                <td style={{ padding: "10px 16px", fontSize: 12, color: muted }}>{(p.visitors || 0).toLocaleString("fr-FR")}</td>
+                                <td style={{ padding: "10px 16px", fontSize: 12, color: durMs > 30000 ? green : muted, fontWeight: durMs > 30000 ? 600 : 400 }}>{durStr}</td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
