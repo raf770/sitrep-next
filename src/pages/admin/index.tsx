@@ -669,7 +669,7 @@ export default function AdminPage() {
                   {(siteFooter.socials||[]).map((s: any, i: number) => (
                     <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "flex-end", padding: 12, background: "#fafafa", borderRadius: 4, border: `1px solid ${border}` }}>
                       <div style={{ width: 36, height: 36, borderRadius: 6, background: "#fff", border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
-                        {{"x":"𝕏","linkedin":"in","instagram":"📷","youtube":"▶","facebook":"f","tiktok":"♪","telegram":"✈"}[s.icon]||"🔗"}
+                        {({"x":"𝕏","linkedin":"in","instagram":"📷","youtube":"▶","facebook":"f","tiktok":"♪","telegram":"✈"} as Record<string,string>)[s.icon]||"🔗"}
                       </div>
                       <div style={{ flex: 1 }}>
                         {label("Réseau")}
@@ -725,7 +725,7 @@ export default function AdminPage() {
                       <div style={{ display: "flex", gap: 6 }}>
                         {(siteFooter.socials||[]).map((s:any,i:number) => (
                           <div key={i} style={{ width: 28, height: 28, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "rgba(255,255,255,.4)" }}>
-                            {{"x":"𝕏","linkedin":"in","instagram":"📷","youtube":"▶","facebook":"f","tiktok":"♪","telegram":"✈"}[s.icon]||"🔗"}
+                            {({"x":"𝕏","linkedin":"in","instagram":"📷","youtube":"▶","facebook":"f","tiktok":"♪","telegram":"✈"} as Record<string,string>)[s.icon]||"🔗"}
                           </div>
                         ))}
                       </div>
