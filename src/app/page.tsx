@@ -1,65 +1,90 @@
-import Image from "next/image";
+import Layout from "@/components/layout/Layout";
+import Pillars from "@/components/home/Pillars";
+import Hero from "@/components/home/Hero";
+import ArticleGrid from "@/components/home/ArticleGrid";
+import Events from "@/components/home/Events";
+import BottomRow from "@/components/home/BottomRow";
+
+const testArticles = [
+  {
+    slug: "test-article-1",
+    title: "Escalade en Mer Rouge : analyse des dynamiques régionales",
+    theme: "MENA",
+    format: "Décryptage",
+    auteur: "Karim Mansouri",
+    date: "2026-04-04",
+    lecture: "8 min",
+    image: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1000&q=80",
+    imgpos: "center",
+    extrait: "Une analyse approfondie des tensions en Mer Rouge et leurs implications géopolitiques.",
+  },
+  {
+    slug: "test-article-2",
+    title: "Iran post-accord : les nouveaux équilibres",
+    theme: "MENA",
+    format: "Note",
+    auteur: "Sara El-Amine",
+    date: "2026-04-03",
+    lecture: "6 min",
+    image: "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=70",
+    imgpos: "center",
+    extrait: "Les dynamiques qui redessinent le paysage régional après l'accord.",
+  },
+  {
+    slug: "test-article-3",
+    title: "Gaza : pourparlers à Doha, sources OSINT",
+    theme: "OSINT",
+    format: "Brief",
+    auteur: "Nadia Khoury",
+    date: "2026-04-02",
+    lecture: "4 min",
+    image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=70",
+    imgpos: "center",
+    extrait: "Décryptage des négociations en cours à travers les sources ouvertes.",
+  },
+  {
+    slug: "test-article-4",
+    title: "Sahel : dynamiques sécuritaires 2026",
+    theme: "MENA",
+    format: "Analyse",
+    auteur: "Karim Mansouri",
+    date: "2026-04-01",
+    lecture: "10 min",
+    image: "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=600&q=70",
+    imgpos: "center",
+    extrait: "Tour d'horizon des nouvelles configurations sécuritaires au Sahel.",
+  },
+  {
+    slug: "test-article-5",
+    title: "Europe et MENA : nouvelles alliances énergétiques",
+    theme: "Europe",
+    format: "Décryptage",
+    auteur: "Sara El-Amine",
+    date: "2026-03-30",
+    lecture: "7 min",
+    image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=600&q=70",
+    imgpos: "center",
+    extrait: "Comment l'Europe restructure ses partenariats énergétiques avec le monde arabe.",
+  },
+];
+
+const testEvents = [
+  { titre: "Iran post-accord", type: "Webinaire", date: "2026-04-08", lieu: "En ligne", int: "Karim Mansouri", lien: "#" },
+  { titre: "Sahel & sécurité", type: "Conférence", date: "2026-04-15", lieu: "Paris", int: "Sara El-Amine", lien: "#" },
+  { titre: "OSINT & renseignement", type: "Live", date: "2026-04-22", lieu: "En ligne", int: "Nadia Khoury", lien: "#" },
+  { titre: "Géopolitique du Golfe", type: "Podcast", date: "2026-04-29", lieu: "En ligne", int: "Karim Mansouri", lien: "#" },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <Layout>
+      <div className="max-w-[1240px] mx-auto px-9 py-8">
+        <Pillars />
+        <Hero articles={testArticles} />
+        <ArticleGrid articles={testArticles.slice(3)} />
+        <Events events={testEvents} />
+        <BottomRow />
+      </div>
+    </Layout>
   );
 }
