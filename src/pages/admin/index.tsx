@@ -154,9 +154,9 @@ export default function AdminPage() {
     setStatsLoading(true);
     setStatsError("");
     try {
-      const r = await fetch("/api/stats");
+      const r = await fetch("/api/ga");
       if (r.ok) { const d = await r.json(); setStats(d); }
-      else { const d = await r.json(); setStatsError(d.error || "Erreur"); }
+      else { const d = await r.json(); setStatsError(d.error || "Erreur API Google Analytics"); }
     } catch(e: any) { setStatsError(e.message); }
     setStatsLoading(false);
   }
@@ -444,47 +444,62 @@ export default function AdminPage() {
         {section === "stats" && (
           <div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
-              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Statistiques</div><div style={{ fontSize: 12, color: muted }}>Données des 30 derniers jours</div></div>
-              <button style={btn(navy)} onClick={loadStats}>🔄 Actualiser</button>
+              <div><div style={{ fontSize: 20, fontWeight: 800, color: navy }}>Statistiques</div><div style={{ fontSize: 12, color: muted }}>Google Analytics — 30 derniers jours</div></div>
+              <button style={btn(navy)} onClick={loadStats} disabled={statsLoading}>{statsLoading ? "Chargement…" : "🔄 Actualiser"}</button>
             </div>
 
             {!stats && !statsLoading && !statsError && (
               <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 48, textAlign: "center" }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: navy, marginBottom: 8 }}>Statistiques Vercel Analytics</div>
-                <div style={{ fontSize: 12, color: muted, marginBottom: 20 }}>Cliquez pour charger les données des 30 derniers jours</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: navy, marginBottom: 8 }}>Google Analytics</div>
+                <div style={{ fontSize: 12, color: muted, marginBottom: 20 }}>Pages vues, visiteurs, durée, temps réel</div>
                 <button style={btn(navy)} onClick={loadStats}>Charger les statistiques</button>
               </div>
             )}
 
             {statsLoading && (
               <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 48, textAlign: "center", color: muted, fontSize: 13 }}>
-                Chargement…
+                Connexion à Google Analytics…
               </div>
             )}
 
             {statsError && (
-              <div style={{ background: "#fdf0ee", border: `1px solid ${accent}`, borderRadius: 6, padding: 20, color: accent, fontSize: 13 }}>
-                ❌ Erreur : {statsError}
-                <div style={{ fontSize: 11, marginTop: 8, color: muted }}>Vérifiez que Vercel Analytics est activé sur le projet.</div>
+              <div style={{ background: "#fdf0ee", border: `1px solid ${accent}`, borderRadius: 6, padding: 20, color: accent, fontSize: 13, marginBottom: 16 }}>
+                ❌ {statsError}
               </div>
             )}
 
             {stats && !statsLoading && (() => {
-              const ts = stats.timeseries?.data || [];
-              const pages = stats.pages?.data || [];
-              const totalViews = ts.reduce((acc: number, d: any) => acc + (d.pageViews || 0), 0);
-              const totalVisitors = ts.reduce((acc: number, d: any) => acc + (d.visitors || 0), 0);
-              const maxViews = Math.max(...ts.map((d: any) => d.pageViews || 0), 1);
+              // Parse GA response
+              const rows = stats.report?.rows || [];
+              const tsRows = stats.timeseries?.rows || [];
+              const realtimeUsers = stats.realtime?.rows?.[0]?.metricValues?.[0]?.value || "0";
+
+              // Totals
+              let totalViews = 0, totalUsers = 0;
+              rows.forEach((r: any) => {
+                totalViews += parseInt(r.metricValues?.[0]?.value || "0");
+                totalUsers += parseInt(r.metricValues?.[1]?.value || "0");
+              });
+              const avgDuration = rows.length > 0 ? Math.round(rows.reduce((acc: number, r: any) => acc + parseFloat(r.metricValues?.[2]?.value || "0"), 0) / rows.length) : 0;
+
+              // Timeseries
+              const maxViews = Math.max(...tsRows.map((r: any) => parseInt(r.metricValues?.[0]?.value || "0")), 1);
 
               return (
                 <div>
+                  {/* Temps réel */}
+                  <div style={{ background: "#e8f5ee", border: `1px solid ${green}`, borderRadius: 6, padding: "12px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: green, animation: "pulse 2s infinite" }} />
+                    <div style={{ fontSize: 14, fontWeight: 700, color: green }}>{realtimeUsers} visiteur{parseInt(realtimeUsers) > 1 ? "s" : ""} actif{parseInt(realtimeUsers) > 1 ? "s" : ""} en ce moment</div>
+                  </div>
+
                   {/* KPIs */}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
                     {[
                       { val: totalViews.toLocaleString("fr-FR"), label: "Pages vues", icon: "👁️", bg: "#e8ecf5", color: navy },
-                      { val: totalVisitors.toLocaleString("fr-FR"), label: "Visiteurs uniques", icon: "👥", bg: "#e8f5ee", color: green },
-                      { val: ts.length > 0 ? Math.round(totalViews / ts.length).toLocaleString("fr-FR") : "0", label: "Moy. par jour", icon: "📅", bg: "#fef3e8", color: "#e67e22" },
+                      { val: totalUsers.toLocaleString("fr-FR"), label: "Visiteurs uniques", icon: "👥", bg: "#e8f5ee", color: green },
+                      { val: avgDuration > 0 ? (avgDuration >= 60 ? Math.round(avgDuration/60)+"min "+Math.round(avgDuration%60)+"s" : avgDuration+"s") : "—", label: "Durée moy. session", icon: "⏱️", bg: "#fef3e8", color: "#e67e22" },
                     ].map((s, i) => (
                       <div key={i} style={{ background: "#fff", padding: "18px 20px", borderRadius: 6, border: `1px solid ${border}`, display: "flex", alignItems: "center", gap: 14 }}>
                         <div style={{ width: 44, height: 44, borderRadius: 10, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{s.icon}</div>
@@ -494,17 +509,19 @@ export default function AdminPage() {
                   </div>
 
                   {/* Graphique */}
-                  {ts.length > 0 && (
+                  {tsRows.length > 0 && (
                     <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, padding: 20, marginBottom: 24 }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: navy, marginBottom: 16 }}>Pages vues par jour</div>
-                      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 120 }}>
-                        {ts.map((d: any, i: number) => {
-                          const h = Math.max(4, Math.round((d.pageViews || 0) / maxViews * 110));
-                          const date = new Date(d.key).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 120 }}>
+                        {tsRows.map((r: any, i: number) => {
+                          const views = parseInt(r.metricValues?.[0]?.value || "0");
+                          const h = Math.max(4, Math.round(views / maxViews * 110));
+                          const date = r.dimensionValues?.[0]?.value || "";
+                          const dateStr = date ? `${date.slice(6,8)}/${date.slice(4,6)}` : "";
                           return (
-                            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }} title={`${date} : ${d.pageViews || 0} vues`}>
-                              <div style={{ width: "100%", height: h, background: navy, borderRadius: "2px 2px 0 0", transition: "height .3s" }} />
-                              {i % 5 === 0 && <div style={{ fontSize: 8, color: muted, textAlign: "center", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{date}</div>}
+                            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }} title={`${dateStr} : ${views} vues`}>
+                              <div style={{ width: "100%", height: h, background: navy, borderRadius: "2px 2px 0 0" }} />
+                              {i % 7 === 0 && <div style={{ fontSize: 8, color: muted }}>{dateStr}</div>}
                             </div>
                           );
                         })}
@@ -512,35 +529,36 @@ export default function AdminPage() {
                     </div>
                   )}
 
-                  {/* Pages les plus vues */}
-                  {pages.length > 0 && (
+                  {/* Pages */}
+                  {rows.length > 0 && (
                     <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 6, overflow: "hidden" }}>
                       <div style={{ padding: "14px 16px", borderBottom: `1px solid ${border}`, fontSize: 12, fontWeight: 700, color: navy }}>Pages les plus visitées</div>
                       <table style={{ width: "100%", borderCollapse: "collapse" }}>
                         <thead>
-                          <tr>
-                            {["Page", "Vues", "Visiteurs", "Durée moy."].map(h => (
-                              <th key={h} style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" as const, color: muted, padding: "10px 16px", textAlign: "left" as const, borderBottom: `2px solid ${border}`, background: "#fafafa" }}>{h}</th>
-                            ))}
-                          </tr>
+                          <tr>{["Page", "Vues", "Visiteurs", "Durée moy."].map(h => (
+                            <th key={h} style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" as const, color: muted, padding: "10px 16px", textAlign: "left" as const, borderBottom: `2px solid ${border}`, background: "#fafafa" }}>{h}</th>
+                          ))}</tr>
                         </thead>
                         <tbody>
-                          {pages.map((p: any, i: number) => {
-                            const durMs = p.avgDuration || 0;
-                            const durStr = durMs > 0 ? (durMs >= 60000 ? Math.round(durMs/60000)+"min" : Math.round(durMs/1000)+"s") : "—";
-                            const maxPv = Math.max(...pages.map((x: any) => x.pageViews || 0), 1);
-                            const pct = Math.round((p.pageViews || 0) / maxPv * 100);
+                          {rows.map((r: any, i: number) => {
+                            const page = r.dimensionValues?.[0]?.value || "/";
+                            const views = parseInt(r.metricValues?.[0]?.value || "0");
+                            const users = parseInt(r.metricValues?.[1]?.value || "0");
+                            const dur = parseFloat(r.metricValues?.[2]?.value || "0");
+                            const durStr = dur > 0 ? (dur >= 60 ? Math.round(dur/60)+"min" : Math.round(dur)+"s") : "—";
+                            const maxPv = parseInt(rows[0]?.metricValues?.[0]?.value || "1");
+                            const pct = Math.round(views / maxPv * 100);
                             return (
                               <tr key={i} style={{ borderBottom: `1px solid ${border}` }}>
-                                <td style={{ padding: "10px 16px", fontSize: 12, color: navy }}>
-                                  <div style={{ fontFamily: "monospace", marginBottom: 4 }}>{p.key || "/"}</div>
-                                  <div style={{ height: 4, background: "#e8ecf5", borderRadius: 2, overflow: "hidden" }}>
+                                <td style={{ padding: "10px 16px" }}>
+                                  <div style={{ fontSize: 12, fontFamily: "monospace", color: navy, marginBottom: 4 }}>{page}</div>
+                                  <div style={{ height: 3, background: "#e8ecf5", borderRadius: 2 }}>
                                     <div style={{ height: "100%", width: pct+"%", background: navy, borderRadius: 2 }} />
                                   </div>
                                 </td>
-                                <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 700, color: navy }}>{(p.pageViews || 0).toLocaleString("fr-FR")}</td>
-                                <td style={{ padding: "10px 16px", fontSize: 12, color: muted }}>{(p.visitors || 0).toLocaleString("fr-FR")}</td>
-                                <td style={{ padding: "10px 16px", fontSize: 12, color: durMs > 30000 ? green : muted, fontWeight: durMs > 30000 ? 600 : 400 }}>{durStr}</td>
+                                <td style={{ padding: "10px 16px", fontSize: 13, fontWeight: 700, color: navy }}>{views.toLocaleString("fr-FR")}</td>
+                                <td style={{ padding: "10px 16px", fontSize: 12, color: muted }}>{users.toLocaleString("fr-FR")}</td>
+                                <td style={{ padding: "10px 16px", fontSize: 12, color: dur > 30 ? green : muted, fontWeight: dur > 30 ? 600 : 400 }}>{durStr}</td>
                               </tr>
                             );
                           })}
@@ -554,7 +572,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* LAYOUT */}
+        {/* LAYOUT */}        {/* LAYOUT */}
         {section === "layout" && (
           <div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
