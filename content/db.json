@@ -165,17 +165,17 @@
   ],
   "layout": [
     {
-      "id": "piliers",
-      "label": "Piliers éditoriaux",
-      "icon": "🏛️",
-      "desc": "Les 3 colonnes Décryptages / Programme / Services",
-      "visible": true
-    },
-    {
       "id": "hero",
       "label": "Article principal",
       "icon": "🗞️",
       "desc": "Grande photo + 2 articles côte à côte",
+      "visible": true
+    },
+    {
+      "id": "piliers",
+      "label": "Piliers éditoriaux",
+      "icon": "🏛️",
+      "desc": "Les 3 colonnes Décryptages / Programme / Services",
       "visible": true
     },
     {
