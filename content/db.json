@@ -1,1 +1,209 @@
-{"articles":[],"evenements":[],"ticker":[{"tag":"BREAKING","text":"Escalade en Mer Rouge"},{"tag":"PROGRAMME","text":"Iran post-accord — 8 Avril"},{"tag":"","text":"Gaza : pourparlers à Doha"}],"layout":[{"id":"hero","label":"Article principal","icon":"🗞️","desc":"Grande photo + 2 articles","visible":true},{"id":"piliers","label":"Piliers éditoriaux","icon":"🏛️","desc":"Les 3 colonnes","visible":true},{"id":"notes","label":"Notes récentes","icon":"📰","desc":"Grille des 3 derniers articles","visible":true},{"id":"evenements","label":"Programme","icon":"📅","desc":"Les 4 prochains événements","visible":true},{"id":"conseil","label":"Conseil & Newsletter","icon":"💼","desc":"Bloc contact + newsletter","visible":true}],"collaborateurs":[{"email":"parienteraphael@gmail.com","role":"Admin"}]}
+{
+  "articles": [
+    {
+      "id": "np5qqar5w",
+      "titre": "TEST 19h20 du 04/04/26",
+      "chapeau": "TEST 19h20 du 04/04/26",
+      "slug": "test-19h20-du-04-04-26",
+      "corps": "TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26",
+      "extrait": "",
+      "theme": "",
+      "format": "",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
+      "id": "1vhd5mwim",
+      "titre": "LA FÊTE",
+      "chapeau": "",
+      "slug": "la-fete",
+      "corps": "",
+      "extrait": "",
+      "theme": "Événements",
+      "format": "Brief",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://www.borgenmagazine.com/wp-content/uploads/2014/03/Rave-Culture.jpg",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
+      "id": "jw85jpi1i",
+      "titre": "BOUBA BOUBA BOUBA",
+      "chapeau": "",
+      "slug": "bouba-bouba-bouba",
+      "corps": "",
+      "extrait": "",
+      "theme": "Podcasts",
+      "format": "Entretien",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://s.france24.com/media/display/08ab89e4-123e-11f0-9c50-005056a90284/w:1024/p:16x9/000_399P33E.jpg",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
+      "id": "lg51bjlrn",
+      "titre": "JOSH 10 10 10 10 10",
+      "chapeau": "Jo Jo Jo Jo Jo",
+      "slug": "josh-10-10-10-10-10",
+      "corps": "",
+      "extrait": "",
+      "theme": "OSINT",
+      "format": "Entretien",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://ca-times.brightspotcdn.com/dims4/default/36385fa/2147483647/strip/true/crop/6000x3999+0+1/resize/2000x1333!/quality/75/?url=https%3A%2F%2Fcalifornia-times-brightspot.s3.amazonaws.com%2F50%2F7b%2Fe90b15334ab0ad277534ae049303%2Fef65b97ff46a4e178bfc38e1bf1b3a04.jpg",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
+      "id": "4winu9dy2",
+      "titre": "MAX 2",
+      "chapeau": "test test test test ",
+      "slug": "max-2",
+      "corps": "",
+      "extrait": "",
+      "theme": "OSINT",
+      "format": "Analyse",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://i.guim.co.uk/img/media/4f5340f25b027feb8cb9452a6a581907109846ce/1370_211_4702_3761/master/4702.jpg?width=465&dpr=1&s=none&crop=none",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
+      "id": "m78ey065z",
+      "titre": "RAF1",
+      "chapeau": "",
+      "slug": "raf1",
+      "corps": "RAFFFF",
+      "extrait": "",
+      "theme": "",
+      "format": "",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://media.tacdn.com/media/attractions-splice-spp-674x446/0b/38/37/34.jpg",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    }
+  ],
+  "evenements": [
+    {
+      "id": "u261al215",
+      "titre": "WEBINAR : POINT DE SITUATION EN IRAN",
+      "type": "Webinaire",
+      "date": "2026-04-14",
+      "lieu": "Paris",
+      "int": "Mr Brown",
+      "lien": "",
+      "pub": true
+    }
+  ],
+  "ticker": [
+    {
+      "tag": "FOOT",
+      "text": "Ligue 1 : Le PSG bat Toulouse (3-1)"
+    },
+    {
+      "tag": "Israël",
+      "text": "Des débris de missile sur Tel Aviv"
+    },
+    {
+      "tag": "ITALIE",
+      "text": "Le trafic interrompu à Turin"
+    },
+    {
+      "tag": "MÉTÉO",
+      "text": "Tout soleil en France"
+    }
+  ],
+  "layout": [
+    {
+      "id": "hero",
+      "label": "Article principal",
+      "icon": "🗞️",
+      "desc": "Grande photo + 2 articles côte à côte",
+      "visible": true
+    },
+    {
+      "id": "piliers",
+      "label": "Piliers éditoriaux",
+      "icon": "🏛️",
+      "desc": "Les 3 colonnes Décryptages / Programme / Services",
+      "visible": true
+    },
+    {
+      "id": "notes",
+      "label": "Notes récentes",
+      "icon": "📰",
+      "desc": "Grille des 3 derniers articles publiés",
+      "visible": true
+    },
+    {
+      "id": "evenements",
+      "label": "Programme",
+      "icon": "📅",
+      "desc": "Les 4 prochains événements",
+      "visible": true
+    },
+    {
+      "id": "conseil",
+      "label": "Conseil & Newsletter",
+      "icon": "💼",
+      "desc": "Bloc contact + inscription newsletter",
+      "visible": true
+    }
+  ],
+  "collaborateurs": [
+    {
+      "email": "parienteraphael@gmail.com",
+      "role": "Admin"
+    }
+  ]
+}
