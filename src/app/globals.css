@@ -3,6 +3,21 @@
 @tailwind components;
 @tailwind utilities;
 
+* { box-sizing: border-box; }
+
 body {
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+@layer utilities {
+  .animate-scroll {
+    animation: scroll 38s linear infinite;
+  }
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }

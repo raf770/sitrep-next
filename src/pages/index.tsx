@@ -23,12 +23,10 @@ export default function Home({ articles, events, layout }: any) {
     return null;
   };
 
-  const visibleBlocks = layout.filter((b: any) => b.visible);
-
   return (
     <Layout>
-      <div className="max-w-[1240px] mx-auto px-9 py-8">
-        {visibleBlocks.map((b: any) => renderBlock(b.id))}
+      <div className="w-full max-w-[1240px] mx-auto px-4 md:px-9 py-6 md:py-8">
+        {layout.filter((b: any) => b.visible).map((b: any) => renderBlock(b.id))}
       </div>
     </Layout>
   );

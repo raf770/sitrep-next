@@ -6,12 +6,12 @@ import Footer from "./Footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-sand font-inter">
+    <div className="min-h-screen bg-sand font-inter overflow-x-hidden">
       <TopBar />
       <Logo />
       <Nav />
       <Ticker />
-      <main>{children}</main>
+      <main className="w-full">{children}</main>
       <Footer />
     </div>
   );

@@ -19,11 +19,11 @@ export default function Events({ events }: { events: Event[] }) {
         <div className="text-[10px] font-black tracking-[0.25em] uppercase text-navy">Programme</div>
         <a href="#" className="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted after:content-['_→']">Tout le calendrier</a>
       </div>
-      <div className="grid grid-cols-4 border border-[#c8c0b0] mb-9 overflow-hidden bg-white">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 border border-[#c8c0b0] mb-9 overflow-hidden bg-white">
         {events.slice(0, 4).map((e, i) => {
           const colors = typeColors[e.type || ""] || { stripe: "bg-navy", text: "text-navy" };
           return (
-            <div key={e.id} className={`p-5 hover:bg-sand ${i < 3 ? "border-r border-[#d8d2c8]" : ""}`}>
+            <div key={e.id} className={`p-5 hover:bg-sand border-b md:border-b-0 ${i < 3 ? "md:border-r border-[#d8d2c8]" : ""}`}>
               <div className={`h-[3px] w-full mb-3.5 ${colors.stripe}`} />
               <div className={`text-[9px] font-bold tracking-[0.16em] uppercase mb-1.5 ${colors.text}`}>{e.type}</div>
               <div className="text-[10px] text-muted mb-1.5">
