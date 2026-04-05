@@ -846,7 +846,45 @@ export default function AdminPage() {
                   <div style={{ marginBottom: 16 }}>{label("Titre *")}<input style={inp()} value={editingArt.titre || ""} onChange={e => { const titre = e.target.value; const slug = sl(titre); setEditingArt({ ...editingArt, titre, slug }); }} /></div>
                   <div style={{ marginBottom: 16 }}>{label("Chapeau")}<input style={inp()} placeholder="Phrase d'accroche…" value={editingArt.chapeau || ""} onChange={e => setEditingArt({ ...editingArt, chapeau: e.target.value })} /></div>
                   <div style={{ marginBottom: 16 }}>{label("Slug URL")}<input style={inp()} value={editingArt.slug || ""} onChange={e => setEditingArt({ ...editingArt, slug: e.target.value })} /><div style={{ fontSize: 11, color: muted, marginTop: 4, fontFamily: "monospace", background: "#f5f5f5", padding: "4px 8px", borderRadius: 3 }}>sitrep.fr/articles/{editingArt.slug || "—"}</div></div>
-                  <div style={{ marginBottom: 16 }}>{label("Corps de l'article")}<textarea style={{ ...inp(), minHeight: 220, resize: "vertical" as const }} value={editingArt.corps || ""} onChange={e => setEditingArt({ ...editingArt, corps: e.target.value })} placeholder="Rédigez ici…&#10;&#10;Sautez une ligne entre les paragraphes." /></div>
+                  <div style={{ marginBottom: 16 }}>
+                  {label("Corps de l'article")}
+                  <div style={{ border: `1.5px solid ${border}`, borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ display: "flex", gap: 4, padding: "6px 8px", background: "#f8f9fc", borderBottom: `1px solid ${border}`, flexWrap: "wrap" as const }}>
+                      {[
+                        { cmd: "bold", label: "G", title: "Gras", style: { fontWeight: 700 } },
+                        { cmd: "italic", label: "I", title: "Italique", style: { fontStyle: "italic" } },
+                        { cmd: "underline", label: "S", title: "Souligné", style: { textDecoration: "underline" } },
+                      ].map(b => (
+                        <button key={b.cmd} title={b.title} onMouseDown={e => { e.preventDefault(); document.execCommand(b.cmd); }}
+                          style={{ ...b.style, padding: "2px 8px", border: `1px solid ${border}`, borderRadius: 3, cursor: "pointer", background: "#fff", fontSize: 12, minWidth: 28 }}>{b.label}</button>
+                      ))}
+                      <div style={{ width: 1, background: border, margin: "0 4px" }} />
+                      {[
+                        { tag: "h2", label: "H2" },
+                        { tag: "h3", label: "H3" },
+                      ].map(h => (
+                        <button key={h.tag} title={h.tag} onMouseDown={e => { e.preventDefault(); document.execCommand("formatBlock", false, h.tag); }}
+                          style={{ padding: "2px 8px", border: `1px solid ${border}`, borderRadius: 3, cursor: "pointer", background: "#fff", fontSize: 12 }}>{h.label}</button>
+                      ))}
+                      <button title="Paragraphe" onMouseDown={e => { e.preventDefault(); document.execCommand("formatBlock", false, "p"); }}
+                        style={{ padding: "2px 8px", border: `1px solid ${border}`, borderRadius: 3, cursor: "pointer", background: "#fff", fontSize: 12 }}>¶</button>
+                      <div style={{ width: 1, background: border, margin: "0 4px" }} />
+                      <button title="Liste" onMouseDown={e => { e.preventDefault(); document.execCommand("insertUnorderedList"); }}
+                        style={{ padding: "2px 8px", border: `1px solid ${border}`, borderRadius: 3, cursor: "pointer", background: "#fff", fontSize: 12 }}>• Liste</button>
+                      <button title="Tout effacer" onMouseDown={e => { e.preventDefault(); document.execCommand("removeFormat"); }}
+                        style={{ padding: "2px 8px", border: `1px solid ${border}`, borderRadius: 3, cursor: "pointer", background: "#fff", fontSize: 11, color: accent }}>✕ Format</button>
+                    </div>
+                    <div
+                      id="rich-editor"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={e => setEditingArt({ ...editingArt, corps: (e.target as HTMLDivElement).innerHTML })}
+                      dangerouslySetInnerHTML={{ __html: editingArt.corps || "" }}
+                      style={{ minHeight: 220, padding: "12px", fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.7, outline: "none", color: navy }}
+                    />
+                  </div>
+                  <div style={{ fontSize: 10, color: muted, marginTop: 4 }}>Sélectionnez du texte pour le formater</div>
+                </div>
                   <div style={{ marginBottom: 16 }}>{label("Extrait (max 180 car.)")}<textarea style={{ ...inp(), minHeight: 70, resize: "vertical" as const }} value={editingArt.extrait || ""} onChange={e => setEditingArt({ ...editingArt, extrait: e.target.value })} /><div style={{ fontSize: 10, color: muted, textAlign: "right" as const }}>{(editingArt.extrait || "").length}/180</div></div>
                 </div>
               )}

@@ -4,20 +4,24 @@ import fs from "fs";
 import Link from "next/link";
 import Layout from "@/components/layout/Layout";
 
-export default function ArticlePage({ article }: any) {
+export default function ArticlePage({ article, siteData }: any) {
   if (!article) return <div>Article introuvable</div>;
-  const corps = (article.corps || "").split("\n\n").map((p: string, i: number) =>
-    p.trim() ? <p key={i} style={{ marginBottom: 20 }}>{p}</p> : null
-  );
+
   const formatDate = (d?: string) =>
     d ? new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "";
 
+  // Detect if corps is HTML or plain text
+  const isHtml = article.corps && (article.corps.includes("<") || article.corps.includes("&"));
+  const corps = isHtml
+    ? article.corps
+    : (article.corps || "").split("\n\n").map((p: string) => p.trim() ? `<p>${p.replace(/\n/g, "<br>")}</p>` : "").join("");
+
   return (
-    <Layout>
-      <div style={{ position: "relative", height: 420, overflow: "hidden" }}>
+    <Layout siteData={siteData}>
+      <div style={{ position: "relative", height: "clamp(280px, 40vw, 420px)", overflow: "hidden" }}>
         <img src={article.image || "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&q=80"}
           alt={article.titre} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: article.imgpos || "center", filter: "brightness(.45)" }} />
-        <div style={{ position: "absolute", inset: 0, padding: "48px 24px", background: "linear-gradient(to top, rgba(18,25,56,.97) 0%, transparent 60%)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+        <div style={{ position: "absolute", inset: 0, padding: "clamp(24px,4vw,48px)", background: "linear-gradient(to top, rgba(18,25,56,.97) 0%, transparent 60%)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
           <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(255,255,255,.6)", marginBottom: 10 }}>
             {article.format}{article.theme ? ` · ${article.theme}` : ""}
           </div>
@@ -29,14 +33,18 @@ export default function ArticlePage({ article }: any) {
           </div>
         </div>
       </div>
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 20px" }}>
+
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(24px,4vw,48px) 20px" }}>
         {article.chapeau && (
           <div style={{ fontSize: 18, fontWeight: 400, color: "#7a7468", lineHeight: 1.6, marginBottom: 32, paddingBottom: 32, borderBottom: "1px solid #d8d2c8" }}>
             {article.chapeau}
           </div>
         )}
         {article.credit && <div style={{ fontSize: 10, color: "#7a7468", textAlign: "right", marginBottom: 16 }}>{article.credit}</div>}
-        <div style={{ fontSize: 15, lineHeight: 1.85, color: "#1a1f3a" }}>{corps}</div>
+        <div
+          style={{ fontSize: 15, lineHeight: 1.85, color: "#1a1f3a" }}
+          dangerouslySetInnerHTML={{ __html: corps }}
+        />
         {article.tags?.length > 0 && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 32, paddingTop: 24, borderTop: "1px solid #d8d2c8" }}>
             {article.tags.map((tag: string) => (
@@ -64,5 +72,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const db = JSON.parse(fs.readFileSync(dbPath, "utf8"));
   const article = (db.articles || []).find((a: any) => a.slug === params?.slug) || null;
   if (!article) return { notFound: true };
-  return { props: { article }, revalidate: 30 };
+  return {
+    props: {
+      article,
+      siteData: { ticker: db.ticker || [], header: db.header || null, footer: db.footer || null },
+    },
+    revalidate: 30,
+  };
 };
