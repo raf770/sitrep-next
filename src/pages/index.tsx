@@ -35,6 +35,7 @@ export default function Home({ articles, events, layout, siteData }: any) {
 export const getStaticProps: GetStaticProps = async () => {
   const dbPath = path.join(process.cwd(), "content", "db.json");
   const db = JSON.parse(fs.readFileSync(dbPath, "utf8"));
+  const pubArts = (db.articles || []).filter((a: any) => a.statut === "Publié");
   return {
     props: {
       articles: db.articles || [],
@@ -44,6 +45,7 @@ export const getStaticProps: GetStaticProps = async () => {
         ticker: db.ticker || [],
         header: db.header || null,
         footer: db.footer || null,
+        articles: pubArts,
       },
     },
     revalidate: 30,

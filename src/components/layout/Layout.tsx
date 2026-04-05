@@ -8,13 +8,14 @@ interface SiteData {
   ticker?: any[];
   header?: any;
   footer?: any;
+  articles?: any[];
 }
 
 export default function Layout({ children, siteData }: { children: React.ReactNode; siteData?: SiteData }) {
   return (
     <div className="min-h-screen bg-sand font-inter overflow-x-hidden">
       <TopBar />
-      <Logo header={siteData?.header} />
+      <Logo header={siteData?.header} articles={siteData?.articles || []} />
       <Nav links={siteData?.header?.navLinks} />
       <Ticker items={siteData?.ticker || []} />
       <main className="w-full">{children}</main>
