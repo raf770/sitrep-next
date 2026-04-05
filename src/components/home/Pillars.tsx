@@ -27,13 +27,13 @@ const pillars = [
 
 export default function Pillars() {
   return (
-    <div className="grid grid-cols-3 border border-[#c8c0b0] mb-9 bg-white">
+    <div className="grid grid-cols-1 md:grid-cols-3 border border-[#c8c0b0] mb-9 bg-white">
       {pillars.map((p, i) => (
-        <div key={i} className={`p-6 ${i < 2 ? "border-r border-[#d8d2c8]" : ""}`}>
-          <div className={`w-7 h-[3px] ${p.color} mb-3.5`} />
-          <div className="text-[9px] font-bold tracking-[0.22em] uppercase text-muted mb-1.5">{p.label}</div>
+        <div key={i} className={`p-5 md:p-6 ${i < 2 ? "border-b md:border-b-0 md:border-r border-[#d8d2c8]" : ""}`}>
+          <div className={`w-7 h-[3px] ${p.color} mb-3`} />
+          <div className="text-[9px] font-bold tracking-[0.18em] uppercase text-muted mb-1.5 leading-tight">{p.label}</div>
           <div className="text-sm font-bold text-navy leading-snug mb-2">{p.title}</div>
-          <div className="text-xs text-muted leading-relaxed font-light mb-3.5">{p.desc}</div>
+          <div className="text-xs text-muted leading-relaxed font-light mb-3">{p.desc}</div>
           <a href="#" className={`text-[10px] font-bold tracking-[0.1em] uppercase ${p.textColor} after:content-['_→']`}>
             {p.link}
           </a>
