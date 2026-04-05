@@ -171,6 +171,10 @@
     {
       "tag": "MÉTÉO",
       "text": "Tout soleil en France"
+    },
+    {
+      "tag": "FRANCE",
+      "text": "Le grand retour du soleil "
     }
   ],
   "layout": [
