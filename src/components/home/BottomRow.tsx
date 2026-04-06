@@ -11,7 +11,7 @@ export default function BottomRow() {
             <li key={i} className="text-xs text-white/55 font-light pl-4 relative leading-relaxed before:content-['—'] before:absolute before:left-0 before:text-white/35">{item}</li>
           ))}
         </ul>
-        <button className="text-[10px] font-bold tracking-[0.1em] uppercase text-white border border-white/35 px-5 py-2.5">Prendre contact →</button>
+        <a href="/services" className="text-[10px] font-bold tracking-[0.1em] uppercase text-white border border-white/35 px-5 py-2.5 inline-block">Nos services →</a>
       </div>
       <div className="bg-sand2 p-8 md:p-9 flex flex-col justify-center">
         <div className="text-[9px] font-bold tracking-[0.22em] uppercase text-accent mb-2.5">Briefing du matin</div>
