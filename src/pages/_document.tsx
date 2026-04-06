@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html lang="fr">
       <Head>
-        <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABbElEQVR4nO3WvU4bQRDA8f+c78Dn43CsALYAUSABUpQ0FBRUURQJiYYXpOIB0qRCNEmHEB8FEm/Ah+zIkQ22z7d7uxRg115IoNltdrr57czsamVx47vlHVfwnsk9wAM8wAM84FUAERnvo/hNACKCMYY8V4gIuVLP8RsARASlNHFcZnmpjlKa+vxHlhcX0Lp4ESB0Sa615kM1ZW/3K/1BRq8/4MunNa5vmzRbbX4e/iZNEowxEwMcWyAYa2jU57i5a9H685dmq83ZxRUL8zVMYZxbIS4fEmstlbhMrTbL1uZnGvU5qtUZtCo4+nXMyekllbiMsZP/cZwqUBjD9PQUO9+2KQpDp/vA2fkV+wc/WF9dQReF841wqsBoCGfThDRNuL5tklRiVK4Io5DhMHcGTDyE8NSCKAq57/XpdB+IopAsGyIiZFlOELjfRSfACFEKAsJSCWvt+MQvSQ6veAmtw6D9F8C/Wh7gAR7gAY/2OoS46W0GnwAAAABJRU5ErkJggg==" />
+        <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAzklEQVR4nO3WPU4DMRCG4fcb708CQtREpE6FlEPk4jR0XAFRcASyuwTsSUef2ShRJFtyOfJTzDcerTY754rHrvl4BVRABVRABZwFIGlWfRMtdPf/m1K6LMDd6dqWpm0wE+M4UUrsUz0ZIInD4Zfty4b18xOPD/e8vr3z8flF33W4nwYJ9YBM7IeJu2XP934g54KI9YIiC4m7s1j0mIlhmGhSIpcSAoR6QBLj+AM4ZsZfzuE0hFNgJoRw5kVx1hw4xzJ5+5OwAiqgAirg5gFHI888E7GQNpkAAAAASUVORK5CYII=" />
       </Head>
       <body>
         <Main />
