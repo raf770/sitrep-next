@@ -10,7 +10,6 @@ const THEMES: Record<string, string> = {
   "osint": "OSINT",
   "podcasts": "Podcasts",
   "programme": "Événements",
-  "services": "Services",
 };
 
 export default function ThemePage({ theme, articles, siteData }: any) {
