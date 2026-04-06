@@ -148,7 +148,7 @@ export default function ServicesPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/services/acces-professionnel"
+              href="/services/acces-pro"
               className="inline-block bg-white text-navy text-sm font-semibold px-6 py-3 hover:bg-white/90 transition"
             >
               Découvrir les offres professionnelles →
