@@ -241,7 +241,7 @@
   "header": {
     "logoText": "SITREP",
     "logoAccent": "REP",
-    "tagline": "L'analyse au service de la décision ",
+    "tagline": "L'info au service de la décision ",
     "navLinks": [
       {
         "label": "Accueil",
@@ -270,5 +270,74 @@
     ],
     "btnText": "S'abonner",
     "btnVisible": true
+  },
+  "footer": {
+    "cols": [
+      {
+        "title": "Notes & Décryptages",
+        "links": [
+          {
+            "label": "MENA",
+            "href": "#"
+          },
+          {
+            "label": "OSINT",
+            "href": "#"
+          },
+          {
+            "label": "Europe",
+            "href": "#"
+          }
+        ]
+      },
+      {
+        "title": "Programme",
+        "links": [
+          {
+            "label": "Séminaires",
+            "href": "#"
+          },
+          {
+            "label": "Lives",
+            "href": "#"
+          },
+          {
+            "label": "Podcasts",
+            "href": "#"
+          }
+        ]
+      },
+      {
+        "title": "Services",
+        "links": [
+          {
+            "label": "Notre approche",
+            "href": "#"
+          },
+          {
+            "label": "Contact",
+            "href": "#"
+          }
+        ]
+      }
+    ],
+    "copyright": "SITREP",
+    "socials": [
+      {
+        "name": "X",
+        "url": "https://x.com/",
+        "icon": "x"
+      },
+      {
+        "name": "LinkedIn",
+        "url": "https://linkedin.com/",
+        "icon": "linkedin"
+      },
+      {
+        "name": "YouTube",
+        "url": "https://www.youtube.com/",
+        "icon": "youtube"
+      }
+    ]
   }
 }
