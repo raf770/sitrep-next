@@ -167,24 +167,8 @@
   ],
   "ticker": [
     {
-      "tag": "FOOT",
-      "text": "Ligue 1 : Le PSG bat Toulouse (3-1)"
-    },
-    {
-      "tag": "Israël",
-      "text": "Des débris de missile sur Tel Aviv"
-    },
-    {
-      "tag": "ITALIE",
-      "text": "Le trafic interrompu à Turin"
-    },
-    {
-      "tag": "MÉTÉO",
-      "text": "Tout soleil en France"
-    },
-    {
-      "tag": "FRANCE",
-      "text": "Le grand retour du soleil "
+      "tag": "SITREP",
+      "text": "SITREP fournit des analyses géopolitiques premium, des briefings ciblés et un accompagnement confidentiel aux organisations exposées aux risques politiques, sécuritaires et réputationnels."
     }
   ],
   "layout": [
